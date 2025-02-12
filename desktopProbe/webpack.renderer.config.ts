@@ -1,8 +1,8 @@
 import type { Configuration } from "webpack";
 
-import { rules } from "./webpack.rules";
+import { rules } from "./webpack.rules.ts";
 import path from "path";
-import { plugins } from "./webpack.plugins";
+import { plugins } from "./webpack.plugins.ts";
 
 rules.push({
   test: /\.css$/,

@@ -9,8 +9,8 @@ import { config as loadEnvVars } from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 
-import { mainConfig } from './webpack.main.config';
-import { rendererConfig } from './webpack.renderer.config';
+import { mainConfig } from './webpack.main.config.ts';
+import { rendererConfig } from './webpack.renderer.config.ts';
 
 // load env vars
 loadEnvVars({ path: path.join(__dirname, '..', 'desktopProbe', '.env') });
