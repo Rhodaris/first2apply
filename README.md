@@ -3,6 +3,8 @@
 First 2 Apply (https://first2apply.com/) is an open-source job board aggregator that centralizes listings from platforms like LinkedIn, Indeed, Dice, and more, helping job seekers find opportunities faster.
 
 ## Project Setup
+You need to have Docker installed.
+
 The project has 2 main components:
 - supabase backend
 - desktop probe 

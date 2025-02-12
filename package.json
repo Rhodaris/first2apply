@@ -9,6 +9,11 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "supabase": "1.226.4"
+    "electron": "^latest",
+    "supabase": "^1.226.4"
+  },
+  "dependencies": {
+    "@electron/asar": "^latest",
+    "glob": "^latest"
   }
 }
