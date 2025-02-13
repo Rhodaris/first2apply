@@ -6,7 +6,7 @@ import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-nati
 import { WebpackPlugin } from '@electron-forge/plugin-webpack';
 import type { ForgeConfig } from '@electron-forge/shared-types';
 import { config as loadEnvVars } from 'dotenv';
-import fs from 'fs';
+// import fs from 'fs';
 import path from 'path';
 
 import { mainConfig } from './webpack.main.config.ts';
