@@ -24,6 +24,7 @@ Deno.serve(async (req) => {
     const supabaseClient = createClient<DbSchema>(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+        console.log("supabaseClient_deno"),
       { global: { headers: { Authorization: authHeader } } }
     );
 
@@ -31,6 +32,7 @@ Deno.serve(async (req) => {
       await supabaseClient.auth.getUser();
     if (getUserError) {
       throw new Error(getUserError.message);
+      console.log("getUserError");
     }
     const user = userData?.user;
     logger.addMeta("user_id", user?.id ?? "");

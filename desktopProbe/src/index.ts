@@ -47,6 +47,7 @@ let mainWindow: BrowserWindow | null = null;
 let trayIconNotificationShown = false;
 const createMainWindow = (): void => {
   // Create the browser window.
+  console.log('Create the browser window.');
   if (mainWindow) return;
   const theme = nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
   mainWindow = new BrowserWindow({
@@ -61,7 +62,7 @@ const createMainWindow = (): void => {
 
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-
+console.log((mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)));
   if (ENV.nodeEnv === 'development') {
     // Open the DevTools.
     mainWindow.webContents.openDevTools();
@@ -84,9 +85,20 @@ const createMainWindow = (): void => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+// app.on('ready', () => {
+//   bootstrap();
+// });
 app.on('ready', () => {
+  console.log('bootstrapping');
   bootstrap();
 });
+//
+// app.whenReady().then(() => {
+//   console.log('App is ready, creating window...');
+//   createWindow();
+// }).catch(err => {
+//   console.error('Error during app startup:', err);
+// });
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -200,6 +212,7 @@ async function bootstrap() {
     // do not allow multiple instances on Windows
     const gotTheLock = app.requestSingleInstanceLock();
     if (!gotTheLock) {
+      logger.info(`do not allow multiple instances on Windows`);
       app.quit();
       return;
     }

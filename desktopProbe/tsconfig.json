@@ -15,7 +15,9 @@
       "*": ["node_modules/*"],
       "@/*": ["./src/*"]
     },
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "lib": ["dom"],
+    "types": ["https://deno.land/x/deno@v1.0.0/types.d.ts"]
   },
   "include": ["src/**/*"]
 }
