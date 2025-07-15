@@ -21,10 +21,10 @@ Deno.serve(async (req) => {
     if (!authHeader) {
       throw new Error("Missing Authorization header");
     }
+    console.log("supabase url: ", Deno.env.get("SUPABASE_URL"));
     const supabaseClient = createClient<DbSchema>(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-        console.log("supabaseClient_deno"),
       { global: { headers: { Authorization: authHeader } } }
     );
 
