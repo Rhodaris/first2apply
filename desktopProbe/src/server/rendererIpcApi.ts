@@ -229,4 +229,25 @@ export function initRendererIpcApi({
   );
 
   ipcMain.handle('debug-link', async (event, { linkId }) => _apiCall(() => jobScanner.startDebugWindow({ linkId })));
+
+  ipcMain.handle('trigger-manual-scan', async (event, {}) =>
+    _apiCall(async () => {
+      if (jobScanner.isScanning()) {
+        throw new Error('Scanner is already running');
+      }
+      
+      // Start the scan (this is non-blocking)
+      jobScanner.scanAllLinks();
+      return { message: 'Manual scan started successfully' };
+    }),
+  );
+
+  ipcMain.handle('get-scanner-status', async (event, {}) =>
+    _apiCall(async () => {
+      return { 
+        isScanning: jobScanner.isScanning(),
+        message: jobScanner.isScanning() ? 'Scanner is running' : 'Scanner is idle'
+      };
+    }),
+  );
 }
