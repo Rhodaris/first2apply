@@ -1,9 +1,7 @@
-import { useAppState } from '@/hooks/appState';
-import { triggerManualScan } from '@/lib/electronMainSdk';
 import { AVAILABLE_CRON_RULES } from '@/lib/types';
 import { useState } from 'react';
 
-import { Button } from './ui/button';
+import { ManualScanButton } from './manualScanButton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 /**
@@ -16,27 +14,7 @@ export function CronSchedule({
   cronRule?: string;
   onCronRuleChange: (cron: string | undefined) => void;
 }) {
-  const { isScanning: isCurrentlyScanning } = useAppState();
-  const [isTriggering, setIsTriggering] = useState(false);
   const [scanStatus, setScanStatus] = useState<string>('');
-
-  const handleManualScan = async () => {
-    setIsTriggering(true);
-    setScanStatus('Starting scan...');
-    
-    try {
-      const result = await triggerManualScan();
-      setScanStatus('Scan started successfully!');
-    } catch (error: any) {
-      setScanStatus(`Error: ${error.message || 'Failed to start scan'}`);
-    } finally {
-      setIsTriggering(false);
-      // Clear status after 3 seconds
-      setTimeout(() => setScanStatus(''), 3000);
-    }
-  };
-
-  const isButtonDisabled = isCurrentlyScanning || isTriggering;
 
   return (
     <div className="space-y-4">
@@ -65,18 +43,7 @@ export function CronSchedule({
             <h2 className="text-lg">Manual Control</h2>
             <p className="text-sm font-light">Run a search immediately to test your configuration</p>
           </div>
-          <Button
-            onClick={handleManualScan}
-            disabled={isButtonDisabled}
-            className="w-[180px]"
-          >
-            {isCurrentlyScanning 
-              ? 'Scanner Running...' 
-              : isTriggering 
-                ? 'Starting...' 
-                : 'Run Search Now'
-            }
-          </Button>
+          <ManualScanButton className="w-[180px]" />
         </div>
         
         {scanStatus && (

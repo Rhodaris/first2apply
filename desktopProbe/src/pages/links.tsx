@@ -1,5 +1,6 @@
 import { CreateLink } from '@/components/createLink';
 import { LinksList } from '@/components/linksList';
+import { ManualScanButton } from '@/components/manualScanButton';
 import { LinksListSkeleton } from '@/components/skeletons/linksListSkeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useAppState } from '@/hooks/appState';
@@ -47,6 +48,12 @@ export function LinksPage() {
     }
   };
 
+  // Toggle link active status (placeholder - implement if needed)
+  const handleToggleActive = async (linkId: number, newValue: boolean) => {
+    // TODO: Implement link active/inactive toggle functionality
+    console.log(`Toggle link ${linkId} to ${newValue ? 'active' : 'inactive'}`);
+  };
+
   if (isLoading) {
     return (
       <DefaultLayout className="p-6 md:p-10">
@@ -63,7 +70,12 @@ export function LinksPage() {
           {isScanning && <span className="ml-4 pb-1 text-xs">( currently scanning for new jobs )</span>}
         </div>
 
-        {links.length > 0 && <CreateLink />}
+        {links.length > 0 && (
+          <div className="flex gap-3">
+            <ManualScanButton variant="outline" size="lg" />
+            <CreateLink />
+          </div>
+        )}
       </div>
 
       {links.length === 0 && (
@@ -76,7 +88,10 @@ export function LinksPage() {
             </h2>
 
             <div className="w-fit lg:hidden">
-              <CreateLink />
+              <div className="flex gap-3">
+                <ManualScanButton variant="outline" size="lg" />
+                <CreateLink />
+              </div>
             </div>
           </div>
 
@@ -122,7 +137,14 @@ export function LinksPage() {
         </>
       )}
 
-      {links.length > 0 && <LinksList links={links} onDeleteLink={handleDeleteLink} onDebugLink={handleDebugLink} />}
+      {links.length > 0 && (
+        <LinksList 
+          links={links} 
+          onDeleteLink={handleDeleteLink} 
+          onDebugLink={handleDebugLink}
+          onToggleActive={handleToggleActive}
+        />
+      )}
     </DefaultLayout>
   );
 }
