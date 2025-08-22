@@ -1,4 +1,5 @@
-import { AzureOpenAI } from "npm:openai";
+// import { AzureOpenAI } from "npm:openai";
+import { OpenAI } from "npm:openai";
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.48.1";
 import { AdvancedMatchingConfig, Job, JobStatus } from "./types.ts";
 import { DbSchema } from "./types.ts";
@@ -165,6 +166,57 @@ export function isExcludedCompany({
  * Prompt the OpenAI API to interogate if a job matches the user prompt.
  * Returns true if the job should be excluded, false otherwise.
  */
+// async function promptOpenAI({
+//   prompt,
+//   job,
+//   openAiApiKey,
+//   shouldBeThrottled,
+// }: {
+//   prompt: string;
+//   job: Job;
+//   openAiApiKey: string;
+//   shouldBeThrottled: boolean;
+// }) {
+//   const openai = new AzureOpenAI({
+//     apiKey: openAiApiKey,
+//     endpoint: "https://first2apply.openai.azure.com/",
+//     apiVersion: "2024-02-15-preview",
+//   });
+
+//   shouldBeThrottled = false; // bypass throttling for now
+//   const llmConfig = shouldBeThrottled
+//     ? {
+//         model: "gpt-3.5-turbo-0125",
+//         costPerMillionInputTokens: 0.5,
+//         costPerMillionOutputTokens: 1.5,
+//       }
+//     : {
+//         model: "gpt-4o",
+//         costPerMillionInputTokens: 5,
+//         costPerMillionOutputTokens: 15,
+//       };
+
+//   const response = await openai.chat.completions.create({
+//     model: "f2agpt4o", // custom azure deployment
+//     messages: [
+//       {
+//         role: "system",
+//         content: SYSTEM_PROMPT,
+//       },
+//       {
+//         role: "user",
+//         content: generateUserPrompt({
+//           prompt,
+//           job,
+//         }),
+//       },
+//     ],
+//     temperature: 0,
+//     max_tokens: 1,
+//     top_p: 0,
+//     frequency_penalty: 0,
+//     presence_penalty: 0,
+//   });
 async function promptOpenAI({
   prompt,
   job,
@@ -176,16 +228,13 @@ async function promptOpenAI({
   openAiApiKey: string;
   shouldBeThrottled: boolean;
 }) {
-  const openai = new AzureOpenAI({
+  const openai = new OpenAI({
     apiKey: openAiApiKey,
-    endpoint: "https://first2apply.openai.azure.com/",
-    apiVersion: "2024-02-15-preview",
   });
-
   shouldBeThrottled = false; // bypass throttling for now
   const llmConfig = shouldBeThrottled
     ? {
-        model: "gpt-3.5-turbo-0125",
+        model: "gpt-4o",
         costPerMillionInputTokens: 0.5,
         costPerMillionOutputTokens: 1.5,
       }
@@ -194,9 +243,10 @@ async function promptOpenAI({
         costPerMillionInputTokens: 5,
         costPerMillionOutputTokens: 15,
       };
+  
 
   const response = await openai.chat.completions.create({
-    model: "f2agpt4o", // custom azure deployment
+    model: llmConfig.model,
     messages: [
       {
         role: "system",
@@ -216,7 +266,6 @@ async function promptOpenAI({
     frequency_penalty: 0,
     presence_penalty: 0,
   });
-
   const message = response.choices[0].message.content?.trim();
 
   const inputTokensUsed = response.usage?.prompt_tokens ?? 0;
