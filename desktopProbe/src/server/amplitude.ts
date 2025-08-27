@@ -20,6 +20,8 @@ export class AmplitudeAnalyticsClient implements IAnalyticsClient {
     if (ENV.amplitudeApiKey) {
       amplitude.init(ENV.amplitudeApiKey, {
         flushIntervalMillis: 10000,
+        serverUrl: 'https://api.eu.amplitude.com/2/httpapi',
+        serverZone: 'EU',
       });
       this._isInitialized = true;
     }
