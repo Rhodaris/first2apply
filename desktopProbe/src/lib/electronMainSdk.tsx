@@ -382,6 +382,20 @@ export async function getAppState(): Promise<{
 }
 
 /**
+ * Trigger a manual scan of all job links.
+ */
+export async function triggerManualScan(): Promise<{ message: string }> {
+  return await _mainProcessApiCall('trigger-manual-scan', {});
+}
+
+/**
+ * Get the current scanner status.
+ */
+export async function getScannerStatus(): Promise<{ isScanning: boolean; message: string }> {
+  return await _mainProcessApiCall('get-scanner-status', {});
+}
+
+/**
  * Apply the latest app update.
  */
 export async function applyAppUpdate(): Promise<void> {

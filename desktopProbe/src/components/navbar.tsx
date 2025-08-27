@@ -63,27 +63,25 @@ export function Navbar() {
     isScanning ? <RefreshCw className="h-7 w-7 animate-spin" /> : <Icons.logo className="h-7 w-7"></Icons.logo>;
 
   return (
-    <nav className="fixed z-50 flex h-screen w-16 flex-col items-center justify-between border-r border-muted-foreground/20 py-6 md:p-10 2xl:w-56 2xl:items-start">
-      <div className="flex flex-col items-center gap-6 2xl:items-start">
-        <Link to={isScanning ? '/links' : '/'} className="mb-16 md:mb-20">
-          <TooltipProvider delayDuration={500}>
-            <Tooltip>
-              <TooltipTrigger className="flex gap-3">
+    <TooltipProvider delayDuration={500}>
+      <nav className="fixed z-50 flex h-screen w-16 flex-col items-center justify-between border-r border-muted-foreground/20 py-6 md:p-10 2xl:w-56 2xl:items-start">
+        <div className="flex flex-col items-center gap-6 2xl:items-start">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link to={isScanning ? '/links' : '/'} className="mb-16 md:mb-20 flex gap-3">
                 <Logo />
                 <span className="hidden text-lg 2xl:inline-block">{isScanning ? 'Scanning ...' : 'First 2 Apply'}</span>
-              </TooltipTrigger>
+              </Link>
+            </TooltipTrigger>
 
-              <TooltipContent side="right" className="text-base 2xl:hidden">
-                {isScanning ? 'Scanning for new jobs ...' : 'First 2 Apply'}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </Link>
+            <TooltipContent side="right" className="text-base 2xl:hidden">
+              {isScanning ? 'Scanning for new jobs ...' : 'First 2 Apply'}
+            </TooltipContent>
+          </Tooltip>
 
-        {navItems.map((item) => (
-          <TooltipProvider delayDuration={500} key={item.name}>
-            <Tooltip>
-              <TooltipTrigger>
+          {navItems.map((item) => (
+            <Tooltip key={item.name}>
+              <TooltipTrigger asChild>
                 <Link
                   key={item.name}
                   to={item.path}
@@ -100,14 +98,12 @@ export function Navbar() {
                 {item.name}
               </TooltipContent>
             </Tooltip>
-          </TooltipProvider>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      {/* theme toggle */}
-      <TooltipProvider delayDuration={500}>
+        {/* theme toggle */}
         <Tooltip>
-          <TooltipTrigger>
+          <TooltipTrigger asChild>
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               className="flex items-center gap-3 p-1 hover:text-primary"
@@ -121,7 +117,7 @@ export function Navbar() {
             {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
           </TooltipContent>
         </Tooltip>
-      </TooltipProvider>
-    </nav>
+      </nav>
+    </TooltipProvider>
   );
 }

@@ -1,5 +1,5 @@
 import { useSites } from '@/hooks/sites';
-import { QuestionMarkCircledIcon, TrashIcon } from '@radix-ui/react-icons';
+import { QuestionMarkCircledIcon, TrashIcon, CheckIcon, Cross1Icon } from '@radix-ui/react-icons';
 import { useMemo } from 'react';
 import ReactTimeAgo from 'react-time-ago';
 
@@ -10,13 +10,15 @@ import { Button } from './ui/button';
 const scrapeFailureThreshold = 3;
 
 export function LinksList({
-  links,
-  onDeleteLink,
-  onDebugLink,
-}: {
+                            links,
+                            onDeleteLink,
+                            onDebugLink,
+                            onToggleActive,
+                          }: {
   links: Link[];
   onDeleteLink: (linkId: number) => void;
   onDebugLink: (linkId: number) => void;
+  onToggleActive: (linkId: number, newValue: boolean) => void;
 }) {
   const { siteLogos, sites } = useSites();
   const sitesMap = useMemo(() => new Map(sites.map((s) => [s.id, s])), [sites]);
@@ -68,7 +70,7 @@ export function LinksList({
               </div>
 
               {/* actions */}
-              <div>
+              <div className="flex items-center">
                 {isInFailureState(link) && (
                   <Button
                     variant="secondary"
@@ -82,6 +84,23 @@ export function LinksList({
                     <QuestionMarkCircledIcon className="h-5 w-5 text-primary" />
                   </Button>
                 )}
+
+                <Button
+                  variant={link.active ? 'default' : 'outline'}
+                  size="default"
+                  className="ml-2 rounded-full px-2 py-1 text-sm transition-colors"
+                  onClick={(evt) => {
+                    evt.stopPropagation();
+                    onToggleActive(link.id, !link.active);
+                  }}
+                  title={link.active ? 'Set inactive' : 'Set active'}
+                >
+                  {link.active ? (
+                    <CheckIcon className="h-5 w-5 text-green-600" />
+                  ) : (
+                    <Cross1Icon className="h-5 w-5 text-gray-400" />
+                  )}
+                </Button>
 
                 <Button
                   variant="destructive"

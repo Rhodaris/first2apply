@@ -56,6 +56,7 @@ export type Link = {
   scrape_failure_count: number;
   last_scraped_at: Date;
   scrape_failure_email_sent: boolean;
+  active: boolean;
 };
 
 export type JobType = "remote" | "hybrid" | "onsite";
