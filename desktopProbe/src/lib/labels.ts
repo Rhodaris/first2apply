@@ -1,6 +1,10 @@
 import { JOB_LABELS, JobLabel } from '../../../supabase/functions/_shared/types';
 
 export const LABEL_COLOR_CLASSES: Record<JobLabel, string> = {
+  [JOB_LABELS.NOW]: 'bg-red-500',
+  [JOB_LABELS.NEXT]: 'bg-green-500',
+  [JOB_LABELS.LATER]: 'bg-yellow-500',
+  [JOB_LABELS.DREAMJOB]: 'bg-violet-500',
   [JOB_LABELS.CONSIDERING]: 'bg-violet-500',
   [JOB_LABELS.SUBMITTED]: 'bg-green-500',
   [JOB_LABELS.INTERVIEWING]: 'bg-yellow-500',

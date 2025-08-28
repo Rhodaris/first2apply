@@ -19,6 +19,10 @@ export enum SiteProvider {
 }
 
 export const JOB_LABELS = {
+  NOW: "Now",
+  NEXT: "Next",
+  LATER: "Later",
+  DREAMJOB: "Dream Job",
   CONSIDERING: "Considering",
   SUBMITTED: "Submitted",
   INTERVIEWING: "Interviewing",
