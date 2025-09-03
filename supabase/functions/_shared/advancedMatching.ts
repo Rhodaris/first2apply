@@ -22,7 +22,7 @@ export async function applyAdvancedMatchingFilters({
   job: Job;
   openAiApiKey: string;
 }): Promise<JobStatus> {
-  logger.info(`applying advanced matching filters to job ${job.id} ...`);
+  logger.info(`applying advanced matching filters to job ${job.id} ${job.title} ...`);
   // check if the user has advanced matching enabled
   const { hasAdvancedMatching } = await checkUserSubscription({
     supabaseClient,
@@ -77,6 +77,7 @@ export async function applyAdvancedMatchingFilters({
       job,
       openAiApiKey,
       shouldBeThrottled,
+      logger
     });
 
     console.debug(message);
@@ -222,11 +223,13 @@ async function promptOpenAI({
   job,
   openAiApiKey,
   shouldBeThrottled,
+  logger
 }: {
   prompt: string;
   job: Job;
   openAiApiKey: string;
   shouldBeThrottled: boolean;
+  logger: ILogger;
 }) {
   const openai = new OpenAI({
     apiKey: openAiApiKey,
@@ -261,12 +264,34 @@ async function promptOpenAI({
       },
     ],
     temperature: 0,
-    max_tokens: 1,
+    max_tokens: 200, // Increased to accommodate JSON response
     top_p: 0,
     frequency_penalty: 0,
     presence_penalty: 0,
   });
-  const message = response.choices[0].message.content?.trim();
+  
+  const messageContent = response.choices[0].message.content?.trim();
+  logger.info(`OpenAI raw response for job ${job.id} ${job.title}: ${messageContent}`);
+
+  let parsedResponse;
+  try {
+    parsedResponse = JSON.parse(messageContent || '{}');
+  } catch (error) {
+    logger.info(`Failed to parse OpenAI response as JSON, job ${job.id} ${job.title}: ${messageContent}`);
+    // Fallback to original behavior
+    parsedResponse = {
+      exclude: messageContent === "Yes",
+      reason: "Failed to parse response"
+    };
+  }
+
+  const jobShouldBeExcluded = parsedResponse.exclude === "Yes";
+  
+  if (jobShouldBeExcluded && parsedResponse.reason) {
+    logger.info(`Job ${job.id} ${job.title} excluded. Reason: ${parsedResponse.reason}`);
+  } else if (!jobShouldBeExcluded) {
+    logger.info(`Job ${job.id} ${job.title} accepted`);
+  }
 
   const inputTokensUsed = response.usage?.prompt_tokens ?? 0;
   const outputTokensUsed = response.usage?.completion_tokens ?? 0;
@@ -275,8 +300,8 @@ async function promptOpenAI({
     (llmConfig.costPerMillionOutputTokens / 1_000_000) * outputTokensUsed;
 
   return {
-    jobShouldBeExcluded: message === "Yes",
-    message,
+    jobShouldBeExcluded,
+    message: messageContent,
     inputTokensUsed,
     outputTokensUsed,
     cost,
@@ -320,4 +345,8 @@ Following are the rules for filtering jobs:
 - technological tools: only jobs mandating undesired technologies should be disqualified, absence of mention should be neutral.
 - working hours: absence of detailed working hours should not disqualify a job unless specific hours are a user requirement.
 - for experience, interpret any specified maximum or minimum years of experience in relation to what is stated in the job description. If the job specifies an experience range, the job should be considered a match if the user's requirement fits within this range or if the user's requirement aligns with the maximum experience mentioned. Absence of experience details in the job description should not disqualify the job unless the user explicitly requires experience details to be mentioned.
-Answer only with 'yes' or 'no' based on the user's requirements.`;
+Respond with a JSON object in this format:
+{
+  "exclude": Yes/No,
+  "reason": "Brief explanation of why the job should be excluded, or included"
+}`;
