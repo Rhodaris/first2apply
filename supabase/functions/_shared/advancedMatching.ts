@@ -275,13 +275,21 @@ async function promptOpenAI({
 
   let parsedResponse;
   try {
-    parsedResponse = JSON.parse(messageContent || '{}');
+    // Handle markdown code blocks
+    let jsonContent = messageContent || '{}';
+    if (jsonContent.startsWith('```json') && jsonContent.endsWith('```')) {
+      jsonContent = jsonContent.slice(7, -3).trim();
+    } else if (jsonContent.startsWith('```') && jsonContent.endsWith('```')) {
+      jsonContent = jsonContent.slice(3, -3).trim();
+    }
+    
+    parsedResponse = JSON.parse(jsonContent);
   } catch (error) {
     logger.info(`Failed to parse OpenAI response as JSON, job ${job.id} ${job.title}: ${messageContent}`);
-    // Fallback to original behavior
+    // Improved fallback logic
     parsedResponse = {
-      exclude: messageContent === "Yes",
-      reason: "Failed to parse response"
+      exclude: "No", // Default to not excluding if we can't parse
+      reason: `Failed to parse response: ${messageContent}`
     };
   }
 
