@@ -16,11 +16,13 @@ export async function applyAdvancedMatchingFilters({
   supabaseClient,
   job,
   openAiApiKey,
+  profile
 }: {
   logger: ILogger;
   supabaseClient: SupabaseClient<DbSchema, "public">;
   job: Job;
   openAiApiKey: string;
+  profile: Profile;
 }): Promise<JobStatus> {
   logger.info(`applying advanced matching filters to job ${job.id} ${job.title} ...`);
   // check if the user has advanced matching enabled
@@ -77,7 +79,8 @@ export async function applyAdvancedMatchingFilters({
       job,
       openAiApiKey,
       shouldBeThrottled,
-      logger
+      logger,      
+      supabaseClient
     });
 
     console.debug(message);
@@ -223,13 +226,15 @@ async function promptOpenAI({
   job,
   openAiApiKey,
   shouldBeThrottled,
-  logger
+  logger, 
+  supabaseClient
 }: {
   prompt: string;
   job: Job;
   openAiApiKey: string;
   shouldBeThrottled: boolean;
   logger: ILogger;
+  supabaseClient: SupabaseClient<DbSchema, "public">;
 }) {
   const openai = new OpenAI({
     apiKey: openAiApiKey,
@@ -300,21 +305,63 @@ async function promptOpenAI({
   } else if (!jobShouldBeExcluded) {
     logger.info(`Job ${job.id} ${job.title} accepted`);
   }
-
+  
   const inputTokensUsed = response.usage?.prompt_tokens ?? 0;
   const outputTokensUsed = response.usage?.completion_tokens ?? 0;
   const cost =
     (llmConfig.costPerMillionInputTokens / 1_000_000) * inputTokensUsed +
     (llmConfig.costPerMillionOutputTokens / 1_000_000) * outputTokensUsed;
 
+  /**
+   * Add note with reasons for filtering
+   */
+  await addFilteringNote({
+    supabaseClient, 
+    job,      
+    text: "AI filtering responce: " + parsedResponse.reason, 
+    logger
+  });
+
   return {
     jobShouldBeExcluded,
     message: messageContent,
     inputTokensUsed,
     outputTokensUsed,
-    cost,
+    cost,    
   };
 }
+
+
+
+/**
+ * Add a filtering note to the notes table
+ */
+async function addFilteringNote({
+  supabaseClient,
+  job,  
+  text,
+  logger
+}: {
+  supabaseClient: SupabaseClient<DbSchema, "public">;
+  job: Job;  
+  text: string;
+  logger: ILogger;
+}) {
+  const { error } = await supabaseClient
+    .from("notes")
+    .insert({
+      job_id: job.id,
+      user_id: job.user_id,
+      text: text
+    });
+    
+  if (error) {
+    logger.info(`Failed to add filtering note for job ${job.id} ${job.title}:`, error);
+    // Don't throw here to avoid breaking the main flow
+  }
+}
+
+
 
 /**
  * Generate the user prompt for the OpenAI API.
@@ -358,3 +405,4 @@ Respond with a JSON object in this format:
   "exclude": Yes/No,
   "reason": "Brief explanation of why the job should be excluded, or included"
 }`;
+
